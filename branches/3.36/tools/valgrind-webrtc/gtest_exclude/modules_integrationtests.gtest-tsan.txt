@@ -1,7 +1,0 @@
-# Tests that are too slow.
-AudioCodingModuleTest.TestAllCodecs
-AudioCodingModuleTest.RunAllTests
-AudioCodingModuleTest.TestOpus
-FecTest.FecTest
-TestVp8Impl.BaseUnitTest
-VideoProcessorIntegrationTest.ProcessNoLossChangeBitRate
