@@ -1,7 +1,0 @@
-# Too slow to run with Dr Memory on Windows.
-VideoProcessingModuleTest.Denoising
-
-
-# https://code.google.com/p/webrtc/issues/detail?id=2323
-MouseCursorShapeTest.MatchCursors
-
