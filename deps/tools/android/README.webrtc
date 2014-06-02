@@ -12,18 +12,26 @@ for Mac and x64 for Linux as of this writing).
 To update these binaries:
 
 Linux:
-1. Checkout Chromium on Linux with the Android solution added to your .gclient
-   See https://code.google.com/p/chromium/wiki/AndroidBuildInstructions for
-   more info.
-2. Run:
-   source build/android/envsetup.sh
-   gclient runhooks
-3. Compile the following GYP targets in Release mode:
-   host_forwarder
-   md5sum
-4. Copy updated versions of the binaries from out/Release dir of the Chromium
-   checkout to similar locations (depending on platform) below this directory.
-5. Create a CL and commit when approved.
+1. Checkout Chromium on Linux with the Android configuration added to your 
+   .gclient file. See 
+   https://code.google.com/p/chromium/wiki/AndroidBuildInstructions for more
+   info.
+2. Generate projects depending on which target platform you want to build for,
+   compile the host_forwarder and md5sum targets in Relase mode and update 
+   the versions in the right locations. 
+   This bash snippet should do it all for Linux:
+   DEPS_CHECKOUT=path/to/your/checkout/deps/tools/android
+   cd path/to/chromium/src/
+   for ARCH in arm arm64 ia32 x64; do
+     GYP_DEFINES="OS=android target_argh=$ARCH" \
+     GYP_GENERATOR_FLAGS="output_dir=out_$ARCH" build/gyp_chromium && \
+     ninja -C out_$ARCH/Release host_forwarder md5sum && \
+     cp -r out_$ARCH/Release/md5sum_dist $DEPS_CHECKOUT/target-$ARCH
+   done
+   cp out_$ARCH/Release/md5sum_bin_host $DEPS_CHECKOUT/linux
+   cp out_$ARCH/Release/host_forwarder $DEPS_CHECKOUT/linux
+
+3. Create a CL and commit when approved.
 
 Mac:
 Follow the steps above, but with these customizations for the different compile
