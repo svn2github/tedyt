@@ -12,26 +12,40 @@ for Mac and x64 for Linux as of this writing).
 To update these binaries:
 
 Linux:
-1. Checkout Chromium on Linux with the Android configuration added to your 
-   .gclient file. See 
+1. Create a WebRTC workspace with a solution having the target_os = ["android"]
+   configuration added to the .gclient file as described at
+   https://code.google.com/p/chromium/wiki/AndroidBuildInstructions
+
+2. Make sure you've run gclient sync so you have tools/android checked out
+   in the WebRTC workspace.
+
+3. Checkout Chromium with the Android configuration added to your .gclient. See 
    https://code.google.com/p/chromium/wiki/AndroidBuildInstructions for more
    info.
-2. Generate projects depending on which target platform you want to build for,
-   compile the host_forwarder and md5sum targets in Relase mode and update 
-   the versions in the right locations. 
+
+4. Now, generate projects depending on which target platform you want to build
+   for, compile the host_forwarder and md5sum targets in Release mode and 
+   update the versions in the right locations. 
+
    This bash snippet should do it all for Linux:
-   DEPS_CHECKOUT=path/to/your/checkout/deps/tools/android
+   TOOLS_ANDROID=path/to/webrtc/trunk/tools/android
    cd path/to/chromium/src/
    for ARCH in arm arm64 ia32 x64; do
-     GYP_DEFINES="OS=android target_argh=$ARCH" \
+     GYP_DEFINES="OS=android target_arch=$ARCH" \
      GYP_GENERATOR_FLAGS="output_dir=out_$ARCH" build/gyp_chromium && \
      ninja -C out_$ARCH/Release host_forwarder md5sum && \
-     cp -r out_$ARCH/Release/md5sum_dist $DEPS_CHECKOUT/target-$ARCH
+     mkdir -p $TOOLS_ANDROID/target-$ARCH && \
+     cp -r out_$ARCH/Release/md5sum_dist $TOOLS_ANDROID/target-$ARCH
    done
-   cp out_$ARCH/Release/md5sum_bin_host $DEPS_CHECKOUT/linux
-   cp out_$ARCH/Release/host_forwarder $DEPS_CHECKOUT/linux
 
-3. Create a CL and commit when approved.
+5. Copy the host platform specific binaries (doesn't matter which of the output
+   folders you use, these binaries should be identical):
+   cp out_arm/Release/md5sum_bin_host $TOOLS_ANDROID/linux
+   cp out_arm/Release/host_forwarder $TOOLS_ANDROID/linux
+
+6. Create a CL by running gcl change in $TOOLS_ANDROID.
+
+7. Get your CL reviewed and commit when approved.
 
 Mac:
 Follow the steps above, but with these customizations for the different compile
@@ -59,3 +73,4 @@ However, it works:
    Remove the body of bool Daemon::Kill() and make it just return true.
 * Modify trace.cc:
    Remove usage of casting -1 to pthread_t. Remove the CHECK_NE
+
